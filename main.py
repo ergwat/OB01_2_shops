@@ -6,12 +6,15 @@ class Store:
         self.name = name
         self.address = address
         self.items = items # словарь, где ключ - название товара, а значение - его цена. Например, `{'apples': 0.5, 'bananas': 0.75}`.
+
     def add_products(self, product, price):
-        pass
+        self.items[product] = price
+
     def remove_products(self, product):
-        pass
+        if product in self.items:
+            del self.items[product]
     def get_price(self, product):
-        pass
+        return self.items.get(product, None)  # Возвращает None, если товар не найден
     def price_update(self, product, new_price):
         pass
 
@@ -22,7 +25,19 @@ def store_add():
         new_store = Store(name, address)
         stores_list.append(new_store)
         all_shops.insert(tk.END, new_store.name)
+        shop_name_field.delete(0, tk.END)
+        shop_address_field.delete(0, tk.END)
 
+def add_products():
+    product = new_product_name_field.get()
+    price = new_product_price_field.get()
+
+    if all_shops.curselection():
+        if new_product_name_field and new_product_price_field:
+            selection = all_shops.curselection()
+            current_store_id = stores_list[selection[0]]
+            current_store = stores_list[current_store_id]
+            current_store.add_products(product, price)
 
 stores_list = []
 

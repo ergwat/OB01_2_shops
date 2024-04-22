@@ -13,10 +13,14 @@ class Store:
     def remove_products(self, product):
         if product in self.items:
             del self.items[product]
+
+
     def get_price(self, product):
         return self.items.get(product, None)  # Возвращает None, если товар не найден
+
     def price_update(self, product, new_price):
-        pass
+        self.items[product] = new_price
+
 
 def store_add():
     name = shop_name_field.get()
@@ -27,16 +31,36 @@ def store_add():
         all_shops.insert(tk.END, new_store.name)
         shop_name_field.delete(0, tk.END)
         shop_address_field.delete(0, tk.END)
+    else:
+        info_window = tk.Tk()
+        info_window.title("Сервисное окно")
 
+        info_label = tk.Label(root, text="Введите название и адрес магазина")
+        info_label.pack()
+
+        ok_button = tk.Button(root, text="ОК", command=info_window.close)
+        ok_button.pack()
+
+        info_window.mainloop()
 
 def on_store_select(event):
-    current_store_id = all_shops.curselection()[0]  # получаем индекс выбранного магазина
-    current_store = stores_list[current_store_id]  # в эту переменную приходит активный экземпляр класса
-    update_items_list(current_store)
+    if event.widget == all_shops:
+        try:
+            current_store_id = all_shops.curselection()[0]  # получаем индекс выбранного магазина
+            current_store = stores_list[current_store_id]  # в эту переменную приходит активный экземпляр класса
+            update_items_list(current_store)
+        except:
+            pass
 
-    print(current_store.name)
-    print(current_store.address)
-    print(current_store.items)
+    elif event.widget == all_goods:
+        try:
+            current_item_id = all_goods.curselection()[0]
+            current_item = all_goods.get(current_item_id)
+            update_price_product_name_label.config(text=current_item)
+        except:
+            pass
+
+
 
 def update_items_list(current_store):
     all_goods.delete(0, tk.END) # очищаем поле с названиями
@@ -65,113 +89,22 @@ def add_products():
 
 stores_list = []
 
-'''def add_task():
-    new_task = task_name_field.get()
-    if new_task:
-        task_list_new.insert(tk.END, new_task)
-        task_name_field.delete(0, tk.END)
-
-def on_enter(event):
-    add_task()
-
-
-def remove_task():
-    if task_list_new.curselection():
-        selected_task = task_list_new.curselection()
-        task_list_new.delete(selected_task)
-    elif task_list_in_progress.curselection():
-        selected_task = task_list_in_progress.curselection()
-        task_list_in_progress.delete(selected_task)
-    elif task_list_done.curselection():
-        selected_task = task_list_done.curselection()
-        task_list_done.delete(selected_task)
-
-
-def new_2_progress():
-    selected_task = task_list_new.curselection()
-    if selected_task:
-        selected_task_name = task_list_new.get(selected_task)
-        task_list_in_progress.insert(tk.END, selected_task_name)
-        task_list_new.delete(selected_task)
-
-
-def progress_2_new():
-    selected_task = task_list_in_progress.curselection()
-    if selected_task:
-        selected_task_name = task_list_in_progress.get(selected_task)
-        task_list_new.insert(tk.END, selected_task_name)
-        task_list_in_progress.delete(selected_task)
-
-
-def progress_2_done():
-    selected_task = task_list_in_progress.curselection()
-    if selected_task:
-        selected_task_name = task_list_in_progress.get(selected_task)
-        task_list_done.insert(tk.END, selected_task_name)
-        task_list_done.itemconfig(tk.END, bg="SpringGreen")
-        task_list_in_progress.delete(selected_task)
-
-
-def done_2_progress():
-    selected_task = task_list_done.curselection()
-    if selected_task:
-        selected_task_name = task_list_done.get(selected_task)
-        task_list_in_progress.insert(tk.END, selected_task_name)
-        task_list_done.delete(selected_task)
-
-
-def save_data():
-    text = task_list_new.get(0, tk.END)
-    with open("new_tasks.txt", "w") as file:
-        for text in text: #перебираем все элементы по одному
-            new_text=str(text)+"\n"
-            file.write(new_text)
-
-    text = task_list_in_progress.get(0, tk.END)
-    with open("in_progress_tasks.txt", "w") as file:
-        for text in text:
-            new_text = str(text) + "\n"
-            file.write(new_text)
-
-    text = task_list_done.get(0, tk.END)
-    with open("done_tasks.txt", "w") as file:
-        for text in text:
-            new_text=str(text)+"\n"
-            file.write(new_text)
-
-
-def load_data():
-    with open("new_tasks.txt", "r") as file:
-        for line in file: #каждая строчка читается отдельно
-            if line != "\n": task_list_new.insert(tk.END, line)
-
-    with open("in_progress_tasks.txt") as file:
-        for line in file:
-            if line != "\n": task_list_in_progress.insert(tk.END, line)
-
-    with open("done_tasks.txt") as file:
-        for line in file:
-            if line != "\n": task_list_done.insert(tk.END, line)
-'''
-
 root = tk.Tk()
 root.title("Global store network planning system")
-
-
 
 label3 = tk.Label(root, text="Список магазинов:")
 label3.grid(row=0, column=0, pady=5, padx=5, sticky="W")
 
 all_shops = tk.Listbox(root, width=30, height=10)
-all_shops.grid(row=1, column=0, pady=10, padx=5)
 all_shops.bind("<<ListboxSelect>>", on_store_select)
-
+all_shops.grid(row=1, column=0, pady=10, padx=5)
 
 label4 = tk.Label(root, text="Товары:")
 label4.grid(row=0, column=3, pady=0, padx=5, sticky="W")
 
 all_goods = tk.Listbox(root, width=30, height=10)
 all_goods.grid(row=1, column=3, pady=0, padx=5, sticky="W")
+all_goods.bind("<<ListboxSelect>>", on_store_select)
 
 label5 = tk.Label(root, text="Цены:")
 label5.grid(row=0, column=4, pady=0, padx=5, sticky="W")

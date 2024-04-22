@@ -2,10 +2,10 @@ import tkinter as tk
 
 
 class Store:
-    def __init__(self, name, address, items={}):
+    def __init__(self, name, address):
         self.name = name
         self.address = address
-        self.items = items # словарь, где ключ - название товара, а значение - его цена. Например, `{'apples': 0.5, 'bananas': 0.75}`.
+        self.items = {}# словарь, где ключ - название товара, а значение - его цена. Например, `{'apples': 0.5, 'bananas': 0.75}`.
 
     def add_products(self, product, price):
         self.items[product] = price
@@ -28,16 +28,40 @@ def store_add():
         shop_name_field.delete(0, tk.END)
         shop_address_field.delete(0, tk.END)
 
+
+def on_store_select(event):
+    current_store_id = all_shops.curselection()[0]  # получаем индекс выбранного магазина
+    current_store = stores_list[current_store_id]  # в эту переменную приходит активный экземпляр класса
+    update_items_list(current_store)
+
+    print(current_store.name)
+    print(current_store.address)
+    print(current_store.items)
+
+def update_items_list(current_store):
+    all_goods.delete(0, tk.END) # очищаем поле с названиями
+    all_prices.delete(0, tk.END) # очищаем поле с ценами
+    for product, price in current_store.items.items(): # перебираем словарь
+        all_goods.insert(tk.END, product) # добавляем название в поле с названиями
+        all_prices.insert(tk.END, price) # добавляем цену в поле с ценами
+
 def add_products():
-    product = new_product_name_field.get()
-    price = new_product_price_field.get()
+    current_store_id = all_shops.curselection()[0]  # получаем индекс выбранного магазина
+    current_store = stores_list[current_store_id]  # в эту переменную приходит активный экземпляр класса
 
     if all_shops.curselection():
         if new_product_name_field and new_product_price_field:
-            selection = all_shops.curselection()
-            current_store_id = stores_list[selection[0]]
-            current_store = stores_list[current_store_id]
+            product = new_product_name_field.get() # получаем название
+            price = new_product_price_field.get() # получаем цену
+
             current_store.add_products(product, price)
+
+            new_product_name_field.delete(0, tk.END) # очищаем поле товара
+            new_product_price_field.delete(0, tk.END) # очищаем поле цены товара
+
+            all_goods.insert(tk.END, product)
+            all_prices.insert(tk.END, price)
+
 
 stores_list = []
 
@@ -140,6 +164,8 @@ label3.grid(row=0, column=0, pady=5, padx=5, sticky="W")
 
 all_shops = tk.Listbox(root, width=30, height=10)
 all_shops.grid(row=1, column=0, pady=10, padx=5)
+all_shops.bind("<<ListboxSelect>>", on_store_select)
+
 
 label4 = tk.Label(root, text="Товары:")
 label4.grid(row=0, column=3, pady=0, padx=5, sticky="W")
@@ -191,7 +217,7 @@ new_product_price_label.grid(row=5, column=2, pady=10, padx=5)
 new_product_price_field = tk.Entry(root, width=40)
 new_product_price_field.grid(row=5, column=3, pady=10, padx=5, sticky="W")
 
-add_new_product_button = tk.Button(root, text="Добавить товар", width=20) #, command=store_add)
+add_new_product_button = tk.Button(root, text="Добавить товар", width=20, command=add_products)
 add_new_product_button.grid(row=5, column=4, pady=5, padx=5)
 # =====================================
 
